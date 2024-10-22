@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emoji Page</title>
+  <style>
+    /* Background image and basic styling */
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      background-image: url('bgg.png'); /* Make sure the path is correct */
+      background-size: cover;
+      background-position: center;
+      color: rgb(110, 107, 107);
+    }
+
+    /* 3D Heading */
+    h1 {
+      text-align: center;
+      font-size: 3em;
+      color: #fff;
+      text-shadow: 3px 3px 5px rgba(0, 0, 0, 0.5); /* 3D effect using shadow */
+      margin-top: 50px;
+    }
+
+    /* Emoji container: responsive grid */
+    #emoji-container {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr); /* 4 columns for large screens */
+      gap: 20px;
+      padding: 50px;
+      margin: 0 auto;
+      max-width: 700px;
+      justify-content: center; /* Centers the grid horizontally */
+      align-content: center; /* Optional: Aligns content vertically */
+    }
+
+    /* Emoji box styling */
+    .emoji-box {
+      position: relative;
+      overflow: hidden; /* Ensures button stays within the emoji box */
+    }
+
+    #emoji-container img {
+      width: 150px; /* Reduced width for the emojis */
+      height: 150px; /* Reduced height for the emojis */
+      object-fit: cover; /* Ensure the emoji maintains aspect ratio */
+      background-color: rgba(255, 255, 255, 0.8);
+      border-radius: 10px;
+      box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.3);
+    }
+
+    /* Download button styling */
+    .download-btn {
+      position: absolute;
+      bottom: 10px;
+      left: 10px;
+      background-color: red;
+      color: white;
+      border: none;
+      border-radius: 30px;
+      padding: 5px 10px;
+      cursor: pointer;
+      opacity: 0; /* Hidden by default */
+      transition: opacity 0.3s;
+    }
+
+    /* Show the button on hover */
+    .emoji-box:hover .download-btn {
+      opacity: 1; /* Show button when hovering */
+    }
+
+    /* Adjust grid for small screens (mobile) */
+    @media (max-width: 768px) {
+      #emoji-container {
+        grid-template-columns: repeat(2, 1fr); /* 2 columns for small screens */
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Heading with 3D effect -->
+  <h1>3D Emojis Gallery</h1>
+
+  <!-- Container for emojis -->
+  <div id="emoji-container">
+    <!-- Emojis will be loaded dynamically here -->
+  </div>
+
+  <script>
+    // Variables for dynamic loading
+    const limit = 20;  // Load 20 emojis per batch
+    const totalEmojis = 80; // Total number of emojis in the 'dsicon' folder
+    const emojiContainer = document.getElementById('emoji-container');
+
+    // Helper function to generate a random number
+    function getRandomNumber(max) {
+      return Math.floor(Math.random() * max) + 1; // Random number from 1 to max
+    }
+
+    // Load random emojis function
+    function loadEmojis() {
+      for (let i = 0; i < limit; i++) {
+        let emojiBox = document.createElement('div');
+        emojiBox.classList.add('emoji-box'); // Add class for emoji box
+
+        let img = document.createElement('img');
+        let randomEmojiNumber = getRandomNumber(totalEmojis); // Get random emoji number
+        img.src = `dsicon/${randomEmojiNumber}.png`;  // Load from 'dsicon' folder
+        img.alt = `emoji${randomEmojiNumber}`;
+
+        // Log the image source for debugging
+        console.log(`Loading image: ${img.src}`);
+
+        // Check if the image is loaded successfully
+        img.onload = () => {
+          emojiBox.appendChild(img);
+
+          // Create and append the download button
+          let downloadButton = document.createElement('button');
+          downloadButton.classList.add('download-btn');
+          downloadButton.innerText = 'Download';
+
+          // Direct download on button click
+          downloadButton.onclick = () => {
+            const link = document.createElement('a');
+            link.href = img.src; // Set link to image source
+            link.download = `${randomEmojiNumber}.png`; // Set filename for download
+            document.body.appendChild(link); // Append link to body
+            link.click(); // Trigger download
+            document.body.removeChild(link); // Clean up
+          };
+
+          emojiBox.appendChild(downloadButton);
+          emojiContainer.appendChild(emojiBox);
+        };
+
+        // Optional: Error handling for missing images
+        img.onerror = () => {
+          console.error(`Image not found: ${img.src}`);
+        };
+      }
+    }
+
+    // Detect scroll to load more emojis
+    window.addEventListener('scroll', () => {
+      if (window.innerHeight + window.scrollY >= document.body.offsetHeight - 100) {
+        loadEmojis();  // Load more emojis on scroll
+      }
+    });
+
+    // Initially load some emojis
+    loadEmojis();
+  </script>
+
+</body>
+</html>

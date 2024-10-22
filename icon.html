@@ -29,8 +29,8 @@
     #emoji-container {
       display: grid;
       grid-template-columns: repeat(4, 1fr); /* 4 columns for large screens */
-      gap: 20px;
-      padding: 50px;
+      gap: 30px;
+      padding: 90px;
       margin: 0 auto;
       max-width: 700px;
       justify-content: center; /* Centers the grid horizontally */
@@ -41,15 +41,28 @@
     .emoji-box {
       position: relative;
       overflow: hidden; /* Ensures button stays within the emoji box */
+      transition: transform 0.3s ease-in-out; /* Add smooth transition for hover zoom */
     }
 
     #emoji-container img {
-      width: 150px; /* Reduced width for the emojis */
-      height: 150px; /* Reduced height for the emojis */
-      object-fit: cover; /* Ensure the emoji maintains aspect ratio */
-      background-color: rgba(255, 255, 255, 0.8);
+      width: 140px;
+      height: 140px;
+      object-fit: cover;
+      background-color: rgba(255, 255, 255, 0.466);
       border-radius: 10px;
       box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.815);
+      transition: transform 0.3s ease-in-out; /* Add transition for hover zoom */
+    }
+
+    /* Hover effect to zoom in the emoji */
+    .emoji-box:hover img {
+      transform: scale(1.1); /* Slightly increase size on hover */
+    }
+
+    /* Hover effect for the emoji box itself */
+    .emoji-box:hover {
+      transform: scale(1.05); /* Scale up the box slightly for a 3D effect */
     }
 
     /* Download button styling */
@@ -72,10 +85,30 @@
       opacity: 1; /* Show button when hovering */
     }
 
-    /* Adjust grid for small screens (mobile) */
+    /* Adjust grid and emoji size for small screens (mobile) */
     @media (max-width: 768px) {
       #emoji-container {
         grid-template-columns: repeat(2, 1fr); /* 2 columns for small screens */
+        gap: 20px; /* Reduce gap between emojis */
+        padding: 30px; /* Reduce padding */
+      }
+
+      #emoji-container img {
+        width: 100px; /* Smaller size for mobile */
+        height: 100px; /* Smaller size for mobile */
+      }
+    }
+
+    /* Further reduce size for very small screens (e.g. phones in portrait mode) */
+    @media (max-width: 480px) {
+      #emoji-container {
+        gap: 15px;
+        padding: 20px;
+      }
+
+      #emoji-container img {
+        width: 80px; /* Very small size for small screens */
+        height: 80px;
       }
     }
   </style>
@@ -94,6 +127,8 @@
     // Variables for dynamic loading
     const limit = 20;  // Load 20 emojis per batch
     const totalEmojis = 80; // Total number of emojis in the 'dsicon' folder
+    let loadedEmojis = new Set(); // Set to track loaded emojis
+    let allEmojisLoaded = false;  // Flag to stop scrolling when all emojis are loaded
     const emojiContainer = document.getElementById('emoji-container');
 
     // Helper function to generate a random number
@@ -103,12 +138,25 @@
 
     // Load random emojis function
     function loadEmojis() {
-      for (let i = 0; i < limit; i++) {
+      if (allEmojisLoaded) return; // Stop loading if all emojis are loaded
+
+      let loadedCount = 0; // Track number of loaded emojis in the batch
+
+      while (loadedCount < limit && loadedEmojis.size < totalEmojis) {
+        let randomEmojiNumber = getRandomNumber(totalEmojis); // Get random emoji number
+        
+        // Check if this emoji is already loaded
+        if (loadedEmojis.has(randomEmojiNumber)) {
+          continue; // Skip if already loaded
+        }
+        
+        loadedEmojis.add(randomEmojiNumber); // Add the emoji to the set
+        loadedCount++; // Increment the count of loaded emojis in this batch
+
         let emojiBox = document.createElement('div');
         emojiBox.classList.add('emoji-box'); // Add class for emoji box
 
         let img = document.createElement('img');
-        let randomEmojiNumber = getRandomNumber(totalEmojis); // Get random emoji number
         img.src = `dsicon/${randomEmojiNumber}.png`;  // Load from 'dsicon' folder
         img.alt = `emoji${randomEmojiNumber}`;
 
@@ -142,6 +190,12 @@
         img.onerror = () => {
           console.error(`Image not found: ${img.src}`);
         };
+      }
+
+      // Check if all emojis have been loaded
+      if (loadedEmojis.size >= totalEmojis) {
+        allEmojisLoaded = true;  // Stop further loading
+        console.log('All emojis have been loaded.');
       }
     }
 
